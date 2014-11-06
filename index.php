@@ -1,17 +1,25 @@
 <?php
 /*
 Plugin Name: Lorem ipsum article shortcode
-Version: 1.0.0
+Version: 1.0.2
 Plugin URI: #
 Description: #
 Author: Ron Valstar
 Author URI: http://www.ronvalstar.nl
 */
-
+/*
+todo: parenthesis, blockquote, h3/h4/h5, googleapis, better anchors
+min word: 300
+https://medium.com/starts-with-a-bang/how-the-sun-really-shines-2dc9fafd3ea4
+http://en.wikipedia.org/wiki/Flesch%E2%80%93Kincaid_readability_tests#Flesch_Reading_Ease
+*/
 if (!class_exists('LoremIpsumArticleShortcode')) {
 	class LoremIpsumArticleShortcode {
 
 		private $aLorem = array('a','et','at','in','mi','ac','id','eu','ut','non','dis','cum','sem','dui','nam','sed','est','nec','sit','mus','vel','leo','urna','duis','quam','cras','nibh','enim','quis','arcu','orci','diam','nisi','nisl','nunc','elit','odio','amet','eget','ante','erat','eros','ipsum','morbi','nulla','neque','vitae','purus','felis','justo','massa','donec','metus','risus','curae','dolor','etiam','fusce','lorem','augue','magna','proin','mauris','nullam','rutrum','mattis','libero','tellus','cursus','lectus','varius','auctor','sociis','ornare','magnis','turpis','tortor','semper','dictum','primis','ligula','mollis','luctus','congue','montes','vivamus','aliquam','integer','quisque','feugiat','viverra','sodales','gravida','laoreet','pretium','natoque','iaculis','euismod','posuere','blandit','egestas','dapibus','cubilia','pulvinar','bibendum','faucibus','lobortis','ultrices','interdum','maecenas','accumsan','vehicula','nascetur','molestie','sagittis','eleifend','facilisi','suscipit','volutpat','venenatis','fringilla','elementum','tristique','penatibus','porttitor','imperdiet','curabitur','malesuada','vulputate','ultricies','convallis','ridiculus','tincidunt','fermentum','dignissim','facilisis','phasellus','consequat','adipiscing','parturient','vestibulum','condimentum','ullamcorper','scelerisque','suspendisse','consectetur','pellentesque');
+		private $aImageAlign = array('alignright','alignleft','aligncenter','alignnone');
+		private $aLineEnd = array('.','?','!','...');
+		private $aLineSeparator = array(',',':',';');
 		private $iLorem;
 		private $fDeviation;
 
@@ -41,7 +49,7 @@ if (!class_exists('LoremIpsumArticleShortcode')) {
 			}
 			// predefining shortcode attribute variables to prevent IDE from whining about undefined vars
 			// the number of paragraphs
-			$paragraph = 7;
+			$paragraph = 12;
 			// the number of sentences in a paragraph
 			$sentence = 5;
 			// the number of words in a sentence
@@ -74,12 +82,7 @@ if (!class_exists('LoremIpsumArticleShortcode')) {
 				$sResult = $this->getArticle($paragraph,$sentence,$word);
 			}
 			//
-//			dump($atts);
-//			dump($content);
-//			dump($paragraph);
-//			dump($post);
-//			dump($this->getArticle($paragraph,$sentence,$word));
-//			dump(implode(' ',$this->getArticle($paragraph,$sentence,$word)));
+			//dump($this->asdfasdf());
 			//
 			return $sResult;
 		}
@@ -96,7 +99,8 @@ if (!class_exists('LoremIpsumArticleShortcode')) {
 			for ($i=0;$i<$this->deviateInt($numParagraphs,$this->fDeviation);$i++) {
 				$aArticle[] = $this->getParagraph($numSentences,$numWords);
 			}
-			return implode('',$aArticle);
+			$sArticle = implode('',$this->enhanceArticle($aArticle));
+			return $sArticle;
 		}
 
 		/**
@@ -110,7 +114,8 @@ if (!class_exists('LoremIpsumArticleShortcode')) {
 			for ($i=0;$i<$this->deviateInt($numSentences,$this->fDeviation);$i++) {
 				$aParagraph[] = $this->getSentence($numWords);
 			}
-			return '<p>'.$this->enhanceParagraph(implode(' ',$aParagraph)).'</p>';
+			$sParagraph = implode(' ',$this->enhanceParagraph($aParagraph));
+			return '<p>'.$sParagraph.'</p>';
 		}
 
 		/**
@@ -122,25 +127,15 @@ if (!class_exists('LoremIpsumArticleShortcode')) {
 			$aSentence = array();
 			for ($i=0;$i<$this->deviateInt($numWords,$this->fDeviation);$i++) {
 				$sWord = $this->aLorem[rand(0,$this->iLorem-1)];
-				$aSentence[] = $enhanced?$this->enhanceWord($sWord):$sWord;
+				$aSentence[] = $enhanced&&$i>0?$this->enhanceWord($sWord):$sWord;
 			}
-			return ucfirst(implode(' ',$aSentence)).($enhanced?'.':'');
-		}
-
-		/**
-		 * Deviates randomly for a given integer.
-		 * @param $int
-		 * @param $deviation
-		 * @return $int
-		 */
-		private function deviateInt($int,$deviation) {
-			$iDeviation = intval($int*$deviation);
-			return $int + rand(-$iDeviation,$iDeviation);
+			$sSentence = implode(' ',$enhanced?$this->enhanceSentence($aSentence):$aSentence);
+			return $sSentence;
 		}
 
 		/**
 		 * Randomly enhance words with anchor, strong or em
-		 * @param $word
+		 * @param string $word
 		 * @return string
 		 */
 		private function enhanceWord($word){
@@ -155,18 +150,60 @@ if (!class_exists('LoremIpsumArticleShortcode')) {
 		}
 
 		/**
-		 * Randomly enhance paragraphs with images
-		 * @param $paragraph
-		 * @return string
+		 * Enhance sentence with capitalisation, line endings, comma's and colons
+		 * @param array $sentence
+		 * @return array
+		 */
+		private function enhanceSentence($sentence){
+			$iLength = count($sentence);
+			// capitalise
+			$sentence[0] = ucfirst($sentence[0]);
+			// sentence ends in
+			$sEnd = $this->arrayPick($this->aLineEnd,4);
+			$sentence[$iLength-1] = $sentence[$iLength-1].$sEnd;
+			// comma, colon and semi-colon
+			if (rand(0,6)===0) {
+				$sSeparator = $this->arrayPick($this->aLineSeparator,3);
+				$iPosition = rand(intval(.25*$iLength),intval(.75*$iLength));
+				$sentence[$iPosition] = $sentence[$iPosition].$sSeparator;
+			}
+			//
+			return $sentence;
+		}
+
+		/**
+		 * Randomly enhance paragraphs with image or list
+		 * @param array $paragraph
+		 * @return array
 		 */
 		private function enhanceParagraph($paragraph){
-			if (rand(0,2)===1) {
-				$aAlign = array('alignright','alignnone','alignleft','aligncenter');
-				$iKey = array_rand($aAlign);
-				$sClass = $aAlign[$iKey];
-				$paragraph = '<img class="'.$sClass.'" src="'.$this->createImageData().'" />'.$paragraph;
+			if (rand(0,7)===1) { // image
+				$sClass = $this->arrayPick($this->aImageAlign,3);
+				$paragraph[0] = '<img class="'.$sClass.'" src="'.$this->createImageData().'" />'.$paragraph[0];
+			} else if (rand(0,4)===1) { // list
+				$sListType = rand(0,1)===1?'ol':'ul';
+				$iListLength = rand(5,10);
+				$aList = array();
+				for ($i=0;$i<$iListLength;$i++) {
+					$aList[] = $this->getSentence($this->deviateInt(8,$this->fDeviation),false);
+				}
+				$paragraph = array('<'.$sListType.'><li>'.implode('</li><li>',$aList).'</li></'.$sListType.'>');
 			}
 			return $paragraph;
+		}
+
+		/**
+		 * Enhances articles with sub-headings
+		 * @param array $article
+		 * @return array
+		 */
+		private function enhanceArticle($article) {
+			foreach ($article as $nr=>$paragraph) {
+				if ($nr>1&&rand(0,3)===1) {
+					$article[$nr] = '<h3>'.ucfirst($this->getSentence(6,false)).'</h3>'.$article[$nr];
+				}
+			}
+			return $article;
 		}
 
 		/**
@@ -198,6 +235,27 @@ if (!class_exists('LoremIpsumArticleShortcode')) {
 		}
 
 		/**
+		 * Deviates randomly for a given integer.
+		 * @param $int
+		 * @param $deviation
+		 * @return $int
+		 */
+		private function deviateInt($int,$deviation) {
+			$iDeviation = intval($int*$deviation);
+			return $int + rand(-$iDeviation,$iDeviation);
+		}
+
+		/**
+		 * Pick a random value from an array. A higher exponent will cause it more likely for the first array entries to be returned.
+		 * @param $array
+		 * @param int $exponent
+		 * @return mixed
+		 */
+		private function arrayPick($array,$exponent=1){
+			return $array[intval(pow(rand(0,1000)/1000,$exponent)*count($array))];
+		}
+
+		/**
 		 * Read all Wordpress image sizes
 		 * @return array
 		 */
@@ -217,21 +275,27 @@ if (!class_exists('LoremIpsumArticleShortcode')) {
 			}
 			return $sizes;
 		}
+
+		private function asdfasdf(){
+			$url = "https://ajax.googleapis.com/ajax/services/search/images?" .
+				   "v=1.0&q=barack%20obama&userip=INSERT-USER-IP";
+
+			// sendRequest
+			// note how referer is set manually
+			$ch = curl_init();
+			curl_setopt($ch, CURLOPT_URL, $url);
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+			//curl_setopt($ch, CURLOPT_REFERER, /* Enter the URL of your site here */);
+			//curl_setopt($ch, CURLOPT_REFERER, $_SERVER['REMOTE_ADDR']);
+			curl_setopt($ch, CURLOPT_REFERER, $_SERVER['HTTP_HOST']);
+			$body = curl_exec($ch);
+			curl_close($ch);
+
+			// now, process the JSON string
+			$json = json_decode($body);
+			return $json;
+		}
 	}
 	new LoremIpsumArticleShortcode();
 }
-/*
- * commas
- * exclamation mark
- * question mark
- * ordered lists
- * unordered lists
- * parenthesis
- * blockquote
- * h3,h4,h5
- *
- * min word: 300
- * https://medium.com/starts-with-a-bang/how-the-sun-really-shines-2dc9fafd3ea4
- * http://en.wikipedia.org/wiki/Flesch%E2%80%93Kincaid_readability_tests#Flesch_Reading_Ease
- **/
 ?>

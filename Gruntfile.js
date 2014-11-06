@@ -17,19 +17,22 @@ module.exports = function (grunt) {
 
 		// Watch
 		,watch: {
-			js: {
-				files: ['src/js/*.js']
-				,tasks: ['js']
+			test: {
+				files: ['*.php','LICENSE','readme.txt','lang/**']
+				,tasks: ['copyTest']
 				,options: {
 					spawn: false
 				}
 			}
-			,less: {
-				files: ['src/style/*.less']
-				,tasks: ['less']
-				,options: {
-					spawn: false
-				}
+			,markdown: {
+				files: ['readme.txt']
+				,tasks: ['markdown']
+				,options: { spawn: false }
+			}
+			,revision: {
+				files: ['.git/COMMIT_EDITMSG']
+				,tasks: ['version_git']
+				,options: { spawn: false }
 			}
 		}
 
@@ -49,6 +52,15 @@ module.exports = function (grunt) {
 				,files: {src: [
 					'readme.txt'
 				]}
+			}
+		}
+
+		// README.md
+		,wp_readme_to_markdown: {
+			your_target: {
+				files: {
+				  'README.md': 'readme.txt'
+				}
 			}
 		}
 
@@ -96,5 +108,6 @@ module.exports = function (grunt) {
 	grunt.registerTask('default',['version_git']);
 	grunt.registerTask('copyRepo',['copy:wprepo']);
 	grunt.registerTask('copyTest',['copy:test']);
+	grunt.registerTask('markdown',['wp_readme_to_markdown']);
 
 };

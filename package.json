@@ -1,7 +1,7 @@
 {
-  "name": "loremIpsumDummyArticleShortcodePlugin",
+  "name": "loremIpsumDummyArticleShortcode",
   "description": "A lorem ipsum dummy article shortcode plugin",
-  "version": "0.1.3",
+  "version": "1.0.2",
   "repository": "",
   "dependencies": {
     "load-grunt-tasks": "~0.4.0",
@@ -10,6 +10,7 @@
     "grunt-version-git": "~0.1.6"
   },
   "devDependencies": {
-    "grunt-contrib-watch": "~0.6.1"
+    "grunt-contrib-watch": "~0.6.1",
+    "grunt-wp-readme-to-markdown": "~0.8.0"
   }
 }
