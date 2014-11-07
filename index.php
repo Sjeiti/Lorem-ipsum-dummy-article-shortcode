@@ -1,14 +1,14 @@
 <?php
 /*
 Plugin Name: Lorem ipsum article shortcode
-Version: 1.0.2
+Version: 1.0.3
 Plugin URI: #
 Description: #
 Author: Ron Valstar
 Author URI: http://www.ronvalstar.nl
 */
 /*
-todo: parenthesis, blockquote, h3/h4/h5, googleapis, better anchors
+todo: parenthesis, blockquote, h3/h4/h5, better anchors
 min word: 300
 https://medium.com/starts-with-a-bang/how-the-sun-really-shines-2dc9fafd3ea4
 http://en.wikipedia.org/wiki/Flesch%E2%80%93Kincaid_readability_tests#Flesch_Reading_Ease
@@ -274,26 +274,6 @@ if (!class_exists('LoremIpsumArticleShortcode')) {
 				}
 			}
 			return $sizes;
-		}
-
-		private function asdfasdf(){
-			$url = "https://ajax.googleapis.com/ajax/services/search/images?" .
-				   "v=1.0&q=barack%20obama&userip=INSERT-USER-IP";
-
-			// sendRequest
-			// note how referer is set manually
-			$ch = curl_init();
-			curl_setopt($ch, CURLOPT_URL, $url);
-			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-			//curl_setopt($ch, CURLOPT_REFERER, /* Enter the URL of your site here */);
-			//curl_setopt($ch, CURLOPT_REFERER, $_SERVER['REMOTE_ADDR']);
-			curl_setopt($ch, CURLOPT_REFERER, $_SERVER['HTTP_HOST']);
-			$body = curl_exec($ch);
-			curl_close($ch);
-
-			// now, process the JSON string
-			$json = json_decode($body);
-			return $json;
 		}
 	}
 	new LoremIpsumArticleShortcode();
