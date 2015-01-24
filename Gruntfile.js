@@ -5,11 +5,8 @@ module.exports = function (grunt) {
     // Load grunt tasks automatically
     require('load-grunt-tasks')(grunt);
 
-	var fs = require('fs')
-		/*,glob = require('glob')*/
-		// config
-		,sFolderWPRepo = 'wprepo/trunk/'
-		,sFolderTest = 'C:/xampp/htdocs/fcwalvisch/web/wp-content/plugins/lorem-ipsum-article-shortcode'
+	var // config
+		sFolderWPRepo = 'wprepo/trunk/'
 	;
 
 	grunt.initConfig({
@@ -17,16 +14,18 @@ module.exports = function (grunt) {
 
 		// Watch
 		,watch: {
-			test: {
-				files: ['*.php','LICENSE','readme.txt','lang/**']
-				,tasks: ['copyTest']
-				,options: {
-					spawn: false
-				}
+			gruntfile: {
+				files: ['Gruntfile.js', '.jshintrc']
+				,options: { spawn: false, reload: true }
 			}
 			,markdown: {
 				files: ['readme.txt']
 				,tasks: ['markdown']
+				,options: { spawn: false }
+			}
+			,copytosvn: {
+				files: ['index.php','README.md','']
+				,tasks: ['copy:wprepo']
 				,options: { spawn: false }
 			}
 			,revision: {
@@ -57,7 +56,7 @@ module.exports = function (grunt) {
 
 		// README.md
 		,wp_readme_to_markdown: {
-			your_target: {
+			txt2md: {
 				files: {
 				  'README.md': 'readme.txt'
 				}
@@ -84,30 +83,11 @@ module.exports = function (grunt) {
 					}
 				]
 			}
-			,test: {
-				files: [
-					{
-						expand: true
-						,cwd: ''
-						,src: ['*.php','LICENSE','readme.txt']
-						,dest: sFolderTest
-						,filter: 'isFile'
-					},
-					{
-						expand: true
-						,cwd: ''
-						,src: ['lang/**']
-						,dest: sFolderTest
-						,filter: 'isFile'
-					}
-				]
-			}
 		}
 	});
 
 	grunt.registerTask('default',['version_git']);
 	grunt.registerTask('copyRepo',['copy:wprepo']);
-	grunt.registerTask('copyTest',['copy:test']);
 	grunt.registerTask('markdown',['wp_readme_to_markdown']);
 
 };

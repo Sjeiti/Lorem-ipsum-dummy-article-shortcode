@@ -2,13 +2,12 @@
 Contributors: Sjeiti
 Tags: lorem ipsum, dummy text, dummy html, dummy article, dummy image, shortcode
 Requires at least: 2.8.6
-Tested up to: 3.9
-1.0.3
+Tested up to: 4.1
+Stable tag: 1.0.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-A seeded dummy article generator shortcode for [WordPress](http://wordpress.org/). This does not just generate 'lorem ipsum' but full articles (with links, images, and whatnot).
-
+A seeded dummy article generator shortcode for WordPress. This does not just generate 'lorem ipsum' but full HTML articles.
 
 == Description ==
 

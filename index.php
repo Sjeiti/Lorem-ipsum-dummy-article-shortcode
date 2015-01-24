@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Lorem ipsum article shortcode
-Version: 1.0.3
+Version: 1.0.4
 Plugin URI: #
 Description: #
 Author: Ron Valstar
@@ -29,7 +29,7 @@ if (!class_exists('LoremIpsumArticleShortcode')) {
 			add_filter( 'the_title', 'do_shortcode', 11 );
 		}
 
-		function handleShortcode($atts,$content=null,$shortcode){
+		function handleShortcode($atts,$content=null){//,$shortcode
 			global $post;
 			//post_content
 			//post_title
@@ -58,7 +58,7 @@ if (!class_exists('LoremIpsumArticleShortcode')) {
 			$header = null;
 			$headerSize = 6;
 			// the random seed
-			$seed = $post->ID;
+			$seed = isset($post)?$post->ID:1234;
 			// how much the sentence-, paragraph and article length can deviate
 			$deviation = .5;
 			//
@@ -71,18 +71,27 @@ if (!class_exists('LoremIpsumArticleShortcode')) {
 				,'deviation' =>	$deviation
 			), $atts));
 			//
+			//
 			$this->fDeviation = floatval($deviation);
 			srand($seed);
 			//
 			// is header
-			if (is_array($atts)&&(in_array('h',$atts)||in_array('header',$atts))) {
+			if (is_array($atts)&&(in_array('h',$atts)||array_key_exists('h',$atts)||in_array('header',$atts)||array_key_exists('header',$atts))) {
 				if (!isset($header)) $header = $headerSize;
 				$sResult = $this->getSentence($header,false);
+				$sResult = ucfirst($sResult);
 			} else {
 				$sResult = $this->getArticle($paragraph,$sentence,$word);
 			}
 			//
-			//dump($this->asdfasdf());
+			/*dump(array(
+				'is_array'=>is_array($atts)
+				,'atts'=>$atts
+				,'in_array h'=>in_array('h',$atts)
+				,'in_array header'=>in_array('header',$atts)
+				,'array_key_exists h'=>array_key_exists ('h',$atts)
+				,'array_key_exists header'=>array_key_exists ('header',$atts)
+			));*/
 			//
 			return $sResult;
 		}
@@ -201,6 +210,8 @@ if (!class_exists('LoremIpsumArticleShortcode')) {
 			foreach ($article as $nr=>$paragraph) {
 				if ($nr>1&&rand(0,3)===1) {
 					$article[$nr] = '<h3>'.ucfirst($this->getSentence(6,false)).'</h3>'.$article[$nr];
+				} else if (rand(0,10)===1&&strpos($article[$nr],'<img')===false&&strpos($article[$nr],'<li')===false) { // blockquote
+					$article[$nr] = '<blockquote>'.$article[$nr].'<footer>— <a href="#">'.ucfirst($this->getSentence(2,false)).'</a></footer></blockquote>';
 				}
 			}
 			return $article;
@@ -277,5 +288,17 @@ if (!class_exists('LoremIpsumArticleShortcode')) {
 		}
 	}
 	new LoremIpsumArticleShortcode();
+}
+
+if (!function_exists("dump")) {
+	/**
+	 * Dumps an Object or Array
+	 * @param $s
+	 */
+	function dump($s) {
+		echo "<pre>";
+		print_r($s);
+		echo "</pre>";
+	}
 }
 ?>
