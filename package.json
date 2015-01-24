@@ -1,7 +1,7 @@
 {
   "name": "loremIpsumDummyArticleShortcode",
   "description": "A lorem ipsum dummy article shortcode plugin",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "repository": "",
   "dependencies": {
     "load-grunt-tasks": "~0.4.0",

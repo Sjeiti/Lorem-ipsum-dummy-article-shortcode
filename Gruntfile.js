@@ -24,15 +24,15 @@ module.exports = function (grunt) {
 				,options: { spawn: false }
 			}
 			,copytosvn: {
-				files: ['index.php','README.md','']
+				files: ['index.php','README.md','LICENSE']
 				,tasks: ['copy:wprepo']
 				,options: { spawn: false }
 			}
-			,revision: {
+			/*,revision: {
 				files: ['.git/COMMIT_EDITMSG']
 				,tasks: ['version_git']
 				,options: { spawn: false }
-			}
+			}*/
 		}
 
 		// Increment versions
